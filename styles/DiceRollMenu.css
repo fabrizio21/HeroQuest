@@ -1,0 +1,190 @@
+.DiceRollMenu {
+    position: absolute;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.55);
+    left: 0;
+    right: 0;
+    bottom: 0;
+    top: 0;
+  }
+  
+  /*
+  .DiceRollMenu   button {
+    position: relative;
+    top:80px;
+    left:10px;
+    padding: 15px 50px;
+    color: #fff;
+    background-color: #f4d35e;
+    border: none;
+    font-size: 20px;
+    border-radius: 20px; 
+    box-shadow: 1px 3px #50514F;
+    outline: none;
+    transition: .3s; 
+  }
+  */
+
+  :root {
+    --trans-z: 24px;
+  }
+
+  .die-list {
+    list-style-type: none;
+    display: flex;
+    justify-content: center;
+    padding: 0;
+  }
+  
+  .die-list li {
+    margin: 5px;
+    width: 48px;
+    height: 48px;
+    position: relative;    
+    perspective: 1000px;
+    perspective-origin: 50% 100%;
+  }
+  
+  .cube .d1 {
+    background: url( "../images/die.png") no-repeat no-repeat;
+    background-position: 0px 0px;
+  }
+  
+  .cube .d2 {
+    background: url("../images/die.png") no-repeat no-repeat;
+    background-position:  -48px 0px;	
+  }
+  .cube .d3 {
+    background: url("../images/die.png") no-repeat no-repeat;
+    background-position:  -96px 0px;	
+  }
+  .cube .d4 {
+    background: url("../images/die.png") no-repeat no-repeat;
+    background-position:  -144px 0px;
+  }
+  .cube .d5 {
+    background: url("../images/die.png")  no-repeat no-repeat;
+    background-position:   -192px 0px;
+  }
+  .cube .d6 {
+    background: url("../images/die.png") no-repeat no-repeat;
+    background-position:   -240px 0px;
+  }
+  
+  
+  .cube .skull {
+    background: url("../images/die.png") no-repeat no-repeat;
+    background-position: -288px 0px;	
+  }
+  
+  .cube .shield-good {
+    background: url("../images/die.png") no-repeat no-repeat;
+    background-position: -356px 0px;	
+  }
+  
+  .cube .shield-evil {
+    background: url("../images/die.png") no-repeat no-repeat;
+    background-position: -404px 0px;	
+  }
+  
+  /*1*/
+  .cube .front {
+    transform: 
+      translateZ(var(--trans-z));
+  }
+  
+  /*2*/
+  .cube .back {
+  
+    transform: 
+      rotateX(-180deg)
+      translateZ(var(--trans-z));
+  }
+  
+  /*3*/
+  .cube .right {
+  
+    transform:
+      rotateY(90deg)
+      translateZ(var(--trans-z));
+  }
+  
+  /*4*/
+  .cube .left {
+  
+    transform:
+      rotateY(-90deg)
+      translateZ(var(--trans-z));
+  }
+  
+  /*5*/
+  .cube .top {
+  
+    transform:
+      rotateX(90deg)
+      translateZ(var(--trans-z));
+  }
+  
+  /*6*/
+  .cube .bottom {
+  
+    transform:
+      rotateX(-90deg)
+      translateZ(var(--trans-z));
+  }
+  
+  .container {
+    width: 48px;
+    height: 48px;
+    position: relative;
+    border: 1px solid #FFF;
+    
+    perspective: 1000px;
+    perspective-origin: 50% 100%;
+  }
+  
+  .cube {
+    width: 48px;
+    height: 48px;
+    position: absolute;   
+    transform-style: preserve-3d;
+    transition: transform 1s;
+  }
+  
+  .cube:hover {
+    cursor: pointer;
+  }
+  
+  .cube div {
+    background: hsla(0, 85%, 50%, 0.8);
+    display: block;
+    position: absolute;
+    
+    width: 48px;
+    height: 48px;
+    
+    margin: 0 auto;      
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 500%;
+    text-align: center;
+
+  }
+  
+  .show-1 {
+    transform: rotateX(720deg) rotateZ(-720deg); }
+  
+  .show-2 {
+    transform: rotateX(-900deg) rotateZ(1080deg); }
+  
+  .show-3 {
+    transform: rotateY(-450deg) rotateZ(-1440deg); }
+  
+  .show-4 {
+    transform: rotateY(810deg) rotateZ(720deg); }
+  
+  .show-5 {
+    transform: rotateX(-810deg) rotateZ(-1080deg); }
+  
+  .show-6 {
+    transform: rotateX(450deg) rotateZ(-720deg); }
+  

@@ -1,58 +1,52 @@
 class RevealingText {
-    constructor(config){
-        this.element = config.element;
-        this.text = config.text;
-        this.speed = config.speed || 50;    // the higher the slower
+  constructor(config) {
+    this.element = config.element;
+    this.text = config.text;
+    this.speed = config.speed || 60;
 
-        this.timeout = null;
-        this.isDone = false;
+    this.timeout = null;
+    this.isDone = false;
+  }
 
+  revealOneCharacter(list) {
+    const next = list.splice(0,1)[0];
+    next.span.classList.add("revealed");
+
+    if (list.length > 0) {
+      this.timeout = setTimeout(() => {
+        this.revealOneCharacter(list)
+      }, next.delayAfter)
+    } else {
+      this.isDone = true;
     }
+  }
 
-    revealOneCharacter(list) {
-        // rimuove il primo carattere della lista
-        const next = list.splice(0,1)[0];
-        // cambia stile allo span
-        next.span.classList.add("revealed");
+  warpToDone() {
+    clearTimeout(this.timeout);
+    this.isDone = true;
+    this.element.querySelectorAll("span").forEach(s => {
+      s.classList.add("revealed");
+    })
+  }
 
-        if(list.length > 0) {
-            this.timeout = setTimeout(() => {
-                this.revealOneCharacter(list);
-            }, next.delayAfter)
-            
-        } else {
-            this.isdone = true;
-        }
-    }
+  init() {
+    let characters = [];
+    this.text.split("").forEach(character => {
 
-    /*
-    * Reveals all the characters without waiting for the timeout
-    */
-    warpToDone() {
-        clearInterval(this.timeout);
-        this.isDone = true;
-        this.element.querySelectorAll("span").forEach(s => {
-            s.classList.add("revealed");
-        })
-    }
+      //Create each span, add to element in DOM
+      let span = document.createElement("span");
+      span.textContent = character;
+      this.element.appendChild(span);
 
-    init() {
-        let characters = [];
-        // splits the text into characters, 
-        // creates a span for each character 
-        // and adds it to the DOM
-        this.text.split("").forEach(character => {
-           let span = document.createElement("span");
-           span.textContent = character; 
-           this.element.appendChild(span);
+      //Add this span to our internal state Array
+      characters.push({
+        span,
+        delayAfter: character === " " ? 0 : this.speed         
+      })
+    })
 
-           // adds this span to our internat state array
-           characters.push({
-                span,
-                delayAfter: character === " " ? 0 : this.speed           
-            })
-        })
+    this.revealOneCharacter(characters);
 
-        this.revealOneCharacter(characters);
-    }
+  }
+
 }

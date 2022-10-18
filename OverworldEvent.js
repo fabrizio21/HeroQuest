@@ -1,97 +1,147 @@
 class OverworldEvent {
-    constructor({ map, event }){
-        this.map = map;
-        this.event = event;
+  constructor({ map, event}) {
+    this.map = map;
+    this.event = event;
+  }
+
+  stand(resolve) {
+    const who = this.map.gameObjects[ this.event.who ];
+    who.startBehavior({
+      map: this.map
+    }, {
+      type: "stand",
+      direction: this.event.direction,
+      time: this.event.time
+    })
+    
+    //Set up a handler to complete when correct person is done walking, then resolve the event
+    const completeHandler = e => {
+      if (e.detail.whoId === this.event.who) {
+        document.removeEventListener("PersonStandComplete", completeHandler);
+        resolve();
+      }
+    }
+    document.addEventListener("PersonStandComplete", completeHandler)
+  }
+
+  walk(resolve) {
+    const who = this.map.gameObjects[ this.event.who ];
+    who.startBehavior({
+      map: this.map
+    }, {
+      type: "walk",
+      direction: this.event.direction,
+      retry: true
+    })
+
+    //Set up a handler to complete when correct person is done walking, then resolve the event
+    const completeHandler = e => {
+      if (e.detail.whoId === this.event.who) {
+        document.removeEventListener("PersonWalkingComplete", completeHandler);
+        resolve();
+      }
+    }
+    document.addEventListener("PersonWalkingComplete", completeHandler)
+
+  }
+
+  textMessage(resolve) {
+
+    if (this.event.faceHero) {
+      const obj = this.map.gameObjects[this.event.faceHero];
+      obj.direction = utils.oppositeDirection(this.map.gameObjects["hero"].direction);
     }
 
-    stand(resolve) {
-        const who = this.map.gameObjects[this.event.who];
+    const message = new TextMessage({
+      text: this.event.text,
+      onComplete: () => resolve()
+    })
+    message.init( document.querySelector(".game-container") )
+  }
 
-        who.startBehavior({
-            map: this.map
-        }, {
-            type: "stand",
-            direction: this.event.direction,
-            time: this.event.time
-        })
+  changeMap(resolve) {
 
-        const completeHandler = e => {
-            if(e.detail.whoId === this.event.who) {
-                document.removeEventListener("PersonStandComplete", completeHandler);
-                resolve();
-            }
-        }
+    //Deactivate old objects
+    Object.values(this.map.gameObjects).forEach(obj => {
+      obj.isMounted = false;
+    })
 
-        document.addEventListener("PersonStandComplete", completeHandler);
-    }
+    const sceneTransition = new SceneTransition();
+    sceneTransition.init(document.querySelector(".game-container"), () => {
+      this.map.overworld.startMap( window.OverworldMaps[this.event.map], {
+        x: this.event.x,
+        y: this.event.y,
+        direction: this.event.direction,
+      });
+      resolve();
+      sceneTransition.fadeOut();
+    })
+  }
 
-    walk(resolve) {
-        const who = this.map.gameObjects[this.event.who];
-        
-        //console.log(who);
+  battle(resolve) {
+    const battle = new Battle({
+      enemy: Enemies[this.event.enemyId],
+      arena: this.event.arena || null,
+      onComplete: (didWin) => {
+        resolve(didWin ? "WON_BATTLE" : "LOST_BATTLE");
+      }
+    })
+    battle.init(document.querySelector(".game-container"));
 
-        who.startBehavior({
-            map: this.map
-        }, {
-            type: "walk",
-            direction: this.event.direction,
-            retry: true
-        })
+  }
 
-        const completeHandler = e => {
-            if(e.detail.whoId === this.event.who) {
-                document.removeEventListener("PersonWalkingComplete", completeHandler);
-                resolve();
-            }
-        }
+  pause(resolve) {
+    this.map.isPaused = true;
+    const menu = new PauseMenu({
+      progress: this.map.overworld.progress,
+      onComplete: () => {
+        resolve();
+        this.map.isPaused = false;
+        this.map.overworld.startGameLoop();
+      }
+    });
+    menu.init(document.querySelector(".game-container"));
+  }
 
-        document.addEventListener("PersonWalkingComplete", completeHandler);
-    }
+  addStoryFlag(resolve) {
+    window.playerState.storyFlags[this.event.flag] = true;
+    resolve();
+  }
 
-    textMessage(resolve){
+  craftingMenu(resolve) {
+    const menu = new CraftingMenu({
+      pizzas: this.event.pizzas,
+      onComplete: () => {
+        resolve();
+      }
+    })
+    menu.init(document.querySelector(".game-container"))
+  }
 
-        if(this.event.faceHero){
-            const obj = this.map.gameObjects[this.event.faceHero];
-            obj.direction = utils.oppositeDirection(this.map.gameObjects["hero"].direction);
-        }
+  /*
+  * [fab] apre il menu d'azione (muovi, cerca, attacca)
+  */
+  actionMenu(resolve) {
 
-        const message = new TextMessage({
-            text: this.event.text,
-            onComplete: () => resolve()
-        })
+    const menu = new ActionMenu({
+      caster: this.event.who,
+      enemy: {},
+      items: [],
+      spells: [],
+      map: this.map,
+      onComplete: () => {
+        //submission { what move to use, who to use it on }
+        console.log("menuAction chiuso", menu.hand);
+        resolve();
+      }
+    })
+    menu.init( document.querySelector(".game-container" ) );
+  }
 
-        message.init(document.querySelector(".game-container"))
-    }
-
-    changeMap(resolve){
-        
-        const sceneTransition = new SceneTransition();
-        sceneTransition.init(document.querySelector(".game-container"), () => {
-            this.map.overworld.startMap(window.OverWorldMaps[this.event.map]);
-            resolve();
-
-            sceneTransition.fadeOut();
-        })
-
-        
-    }
-
-    battle(resolve) {
-        const battle = new Battle({
-            onComplete: () => {
-                resolve();
-            }
-        })
-
-        battle.init(document.querySelector(".game-container"));
-    }
-
-    init() {
-
-        return new Promise(resolve => {
-            this[this.event.type](resolve);
-        })
-    }
-
+  init() {
+    return new Promise(resolve => {
+      this[this.event.type](resolve)      
+    })
+  }
 
 }
